@@ -7,6 +7,12 @@ allprojects {
     group = "org.robolectric"
     version = "3.2-SNAPSHOT"
 
+    if (project.name == "integration-tests") {
+        println("Bailing for ${project.name}")
+        return
+    }
+
+    println "Applying java to ${project.name}"
     apply plugin: "java"
     sourceCompatibility = JavaVersion.VERSION_1_7
     targetCompatibility = JavaVersion.VERSION_1_7
@@ -45,7 +51,11 @@ allprojects {
         from javadoc.destinationDir
     }
 
-    task provideBuildClasspath(type: ProvideBuildClasspathTask)
+    task provideBuildClasspath(type: ProvideBuildClasspathTask) {
+        File outDir = project.sourceSets['test'].output.resourcesDir
+        if (!outDir.directory) outDir.mkdirs()
+        outFile = new File(outDir, 'robolectric-deps.properties')
+    }
 
     test {
         dependsOn provideBuildClasspath
